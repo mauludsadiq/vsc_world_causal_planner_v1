@@ -1,10 +1,21 @@
 from __future__ import annotations
+import os
+REPS_PER_KEY = 5 if os.environ.get('TEXT_FAST') == '1' else 40
 import json
+import os
+import os
 import random
 import sys
 from pathlib import Path
+from text_world.demo_scale import anchors, reps
+
+
+def _reps_per_key(x: int) -> int:
+    return int(x)
 
 from text_world.env_paragraph import (
+
+
     build_paragraph_world,
     sample_transition,
     mle_estimate_T,
@@ -91,11 +102,11 @@ def run(out_json: str, seed: int) -> dict:
             anchors.append(s0)
 
     # 2) Collect many samples per (s,act) key (so MLE is meaningful)
-    reps = 40  # per (anchor, act)
+    reps_per_key = _reps_per_key(40)  # per (anchor, act)
     transitions = []
     for s in anchors:
         for act in world.actions:
-            for _ in range(reps):
+            for _ in range(reps_per_key):
                 sp = sample_transition(world, s, act, rng)
                 transitions.append((s, act, sp))
 
@@ -109,7 +120,7 @@ def run(out_json: str, seed: int) -> dict:
         "PARA_WORLD_MODEL_TRANSITION_L1": {
             "mean_l1": mean_l1,
             "anchors": len(anchors),
-            "reps_per_key": reps,
+            "reps_per_key": reps_per_key,
             "samples": len(transitions),
             "threshold": threshold,
         },
@@ -117,9 +128,9 @@ def run(out_json: str, seed: int) -> dict:
     }
 
     Path(out_json).parent.mkdir(parents=True, exist_ok=True)
-    Path(out_json).write_text(json.dumps(report, indent=2), encoding="utf-8")
+    Path(out_json).write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
 
-    print(f"[PASS] PARA_WORLD_MODEL_TRANSITION_L1: mean_l1={mean_l1:.6f} anchors={len(anchors)} reps={reps} samples={len(transitions)} threshold={threshold}")
+    print(f"[PASS] PARA_WORLD_MODEL_TRANSITION_L1: mean_l1={mean_l1:.6f} anchors={len(anchors)} reps={reps_per_key} samples={len(transitions)} threshold={threshold}")
     print(f"[PASS] PARA_SAFETY_CONSTRAINT_POLICY_SELECTED: mode={selection['mode']} chosen_action={selection['chosen_action']} chosen_risk={selection['chosen_risk']:.4f} epsilon={selection['epsilon']} opt_risk={selection['opt_risk']:.4f}")
     return report
 
