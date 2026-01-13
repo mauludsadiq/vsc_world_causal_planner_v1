@@ -3,6 +3,7 @@ import json
 import random
 import sys
 from pathlib import Path
+from text_world.demo_scale import trials
 
 from text_world.env_document import build_document_world, sample_transition
 
@@ -29,7 +30,7 @@ def rollout_return_and_risk(world, s0, policy, H, rng):
         s = sp
     return ret, (risk_events / H)
 
-def mc_score(world, s0, policy, H, rng, trials=400):
+def mc_score(world, s0, policy, H, rng, trials=trials(400)):
     r_sum = 0.0
     k_sum = 0.0
     for _ in range(trials):

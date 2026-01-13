@@ -1,0 +1,2 @@
+A robot arm moves a block upward. The gripper releases it. The block falls.
+Wireless charging transfers energy without a cable. The device warms slightly but remains safe.

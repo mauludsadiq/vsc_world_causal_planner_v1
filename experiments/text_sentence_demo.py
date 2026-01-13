@@ -1,8 +1,10 @@
 from __future__ import annotations
 import json
+import os
 import random
 import sys
 from pathlib import Path
+from text_world.demo_scale import sent_samples
 
 from text_world.env_sentence import build_sentence_world, sample_transition, mle_estimate_T, mean_l1_distance
 from text_world.planning_text import select_policy_under_risk
