@@ -1,0 +1,76 @@
+{
+  "results": [
+    {
+      "message": "Backdoor matches do-effect; naive conditional deviates under confounding.",
+      "metrics": {
+        "backdoor_x0": 0.307904,
+        "backdoor_x1": 0.777974,
+        "max_abs_err_backdoor": 0.00443,
+        "max_abs_gap_naive": 0.090943,
+        "min_gap_naive": 0.08,
+        "naive_x0": 0.218209,
+        "naive_x1": 0.845511,
+        "tol": 0.03,
+        "true_do_x0": 0.309152,
+        "true_do_x1": 0.773544
+      },
+      "name": "SCM_DO_EFFECT_BACKDOOR",
+      "passed": true
+    },
+    {
+      "message": "Learned controlled transition model approximates ground truth.",
+      "metrics": {
+        "mean_l1": 0.001385,
+        "samples": 32000,
+        "threshold": 0.06
+      },
+      "name": "WORLD_MODEL_TRANSITION_L1",
+      "passed": true
+    },
+    {
+      "message": "Value iteration matches brute-force optimal stationary policy.",
+      "metrics": {
+        "abs_return_diff": 0.0,
+        "bf_policy": [
+          0,
+          0,
+          0
+        ],
+        "bf_return": 4.0,
+        "vi_policy": [
+          0,
+          0,
+          0
+        ],
+        "vi_return": 4.0
+      },
+      "name": "PLANNING_VI_EQUALS_BRUTE_FORCE",
+      "passed": true
+    },
+    {
+      "message": "Selected a policy satisfying risk bound (or minimum-risk fallback).",
+      "metrics": {
+        "chosen_policy": [
+          0,
+          0,
+          0
+        ],
+        "chosen_return": 4.0,
+        "chosen_risk": 0.0,
+        "epsilon": 0.12,
+        "ret_opt": 4.0,
+        "ret_safe": 4.0,
+        "risk_opt": 0.0,
+        "risk_safe": 0.0
+      },
+      "name": "SAFETY_CONSTRAINT_POLICY_SELECTED",
+      "passed": true
+    }
+  ],
+  "summary": {
+    "all_passed": true,
+    "failed": 0,
+    "passed": 4,
+    "total": 4
+  }
+}
