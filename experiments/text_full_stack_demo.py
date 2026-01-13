@@ -8,7 +8,7 @@ from experiments.text_paragraph_world_demo import main as run_paragraph_world
 from experiments.text_document_tradeoff_demo import main as run_document_tradeoff
 from experiments.text_block_world_demo import main as run_block_world
 from experiments.text_block_tradeoff_demo import main as run_block_tradeoff
-from experiments.text_block_counterfactual_xplain_demo import main as run_cf
+from experiments.text_block_counterfactual_explain_demo import main as run_cf
 
 def _run(mod_main, argv):
     old = sys.argv[:]
