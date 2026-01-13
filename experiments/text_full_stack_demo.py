@@ -14,22 +14,24 @@ def load_json(path: str):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 def main() -> None:
-    # usage:
-    #   python -m experiments.text_full_stack_demo results/text_full_stack_demo.json 0
     out_json = "results/text_full_stack_demo.json"
     seed = "0"
+    n_block = "8"
     if len(sys.argv) >= 2:
         out_json = sys.argv[1]
     if len(sys.argv) >= 3:
         seed = sys.argv[2]
+    if len(sys.argv) >= 4:
+        n_block = sys.argv[3]
 
     Path(out_json).parent.mkdir(parents=True, exist_ok=True)
 
     sent_json = "results/text_sentence_demo.json"
     para_json = "results/text_paragraph_world_demo.json"
     doc_json  = "results/text_document_tradeoff_demo.json"
+    block_world_json = "results/text_block_world_demo.json"
+    block_trade_json = "results/text_block_tradeoff_demo.json"
 
-    # Run the three demos. We intentionally forward their stdout PASS lines unchanged.
     sent_out = run_cmd([sys.executable, "-m", "experiments.text_sentence_demo", sent_json, seed])
     sys.stdout.write(sent_out)
 
@@ -39,17 +41,27 @@ def main() -> None:
     doc_out = run_cmd([sys.executable, "-m", "experiments.text_document_tradeoff_demo", doc_json, seed])
     sys.stdout.write(doc_out)
 
-    # Build a compact summary (plus pointers to the full per-demo JSON).
+    bw_out = run_cmd([sys.executable, "-m", "experiments.text_block_world_demo", block_world_json, seed, n_block])
+    sys.stdout.write(bw_out)
+
+    bt_out = run_cmd([sys.executable, "-m", "experiments.text_block_tradeoff_demo", block_trade_json, seed, n_block])
+    sys.stdout.write(bt_out)
+
     sent = load_json(sent_json)
     para = load_json(para_json)
     doc  = load_json(doc_json)
+    bw   = load_json(block_world_json)
+    bt   = load_json(block_trade_json)
 
     summary = {
         "seed": int(seed),
+        "n_block": int(n_block),
         "artifacts": {
             "sentence_json": sent_json,
             "paragraph_json": para_json,
             "document_json": doc_json,
+            "block_world_json": block_world_json,
+            "block_tradeoff_json": block_trade_json,
         },
         "highlights": {
             "TEXT_SCM_BACKDOOR": {
@@ -71,6 +83,8 @@ def main() -> None:
             },
             "PARA_WORLD_MODEL_TRANSITION_L1": para["PARA_WORLD_MODEL_TRANSITION_L1"],
             "DOC_SAFETY_TRADEOFF_FORCED": doc["DOC_SAFETY_TRADEOFF_FORCED"],
+            "BLOCK_WORLD_MODEL_TRANSITION_L1": bw["BLOCK_WORLD_MODEL_TRANSITION_L1"],
+            "BLOCK_SAFETY_TRADEOFF_FORCED": bt["BLOCK_SAFETY_TRADEOFF_FORCED"],
         },
     }
 
