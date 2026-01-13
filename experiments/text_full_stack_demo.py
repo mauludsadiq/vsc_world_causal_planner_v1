@@ -8,7 +8,7 @@ from experiments.text_paragraph_world_demo import main as run_paragraph_world
 from experiments.text_document_tradeoff_demo import main as run_document_tradeoff
 from experiments.text_block_world_demo import main as run_block_world
 from experiments.text_block_tradeoff_demo import main as run_block_tradeoff
-from experiments.text_block_counterfactual_explain_demo import main as run_cf
+from experiments.text_block_counterfactual_xplain_demo import main as run_cf
 
 def _run(mod_main, argv):
     old = sys.argv[:]
@@ -52,20 +52,30 @@ def main() -> None:
     bt = json.loads(Path(bt_json).read_text(encoding="utf-8"))
     cf = json.loads(Path(cf_json).read_text(encoding="utf-8"))
 
-    highlights = {}
-    for k in ("TEXT_SCM_BACKDOOR","TEXT_WORLD_MODEL_TRANSITION_L1","TEXT_PLANNING_VI_EQUALS_BRUTE_FORCE","TEXT_SAFETY_CONSTRAINT_POLICY_SELECTED"):
-        highlights[k] = {kk: s[k][kk] for kk in s[k].keys() if kk in ("max_abs_err_backdoor","tol","min_gap_naive","mean_l1","samples","threshold","abs_return_diff","vi_return","bf_return","chosen_action","chosen_risk","epsilon","opt_risk")}
-        if not highlights[k]:
-            highlights[k] = s[k]
-
-    highlights["PARA_WORLD_MODEL_TRANSITION_L1"] = p["PARA_WORLD_MODEL_TRANSITION_L1"]
-    if "PARA_SAFETY_CONSTRAINT_POLICY_SELECTED" in p:
-        highlights["PARA_SAFETY_CONSTRAINT_POLICY_SELECTED"] = p["PARA_SAFETY_CONSTRAINT_POLICY_SELECTED"]
-
-    highlights["DOC_SAFETY_TRADEOFF_FORCED"] = d["DOC_SAFETY_TRADEOFF_FORCED"]
-    highlights["BLOCK_WORLD_MODEL_TRANSITION_L1"] = bw["BLOCK_WORLD_MODEL_TRANSITION_L1"]
-    highlights["BLOCK_SAFETY_TRADEOFF_FORCED"] = bt["BLOCK_SAFETY_TRADEOFF_FORCED"]
-    highlights["BLOCK_COUNTERFACTUAL_EXPLANATION"] = cf["BLOCK_COUNTERFACTUAL_EXPLANATION"]
+    highlights = {
+        "TEXT_SCM_BACKDOOR": {
+            "max_abs_err_backdoor": s["TEXT_SCM_BACKDOOR"]["max_abs_err_backdoor"],
+            "tol": s["TEXT_SCM_BACKDOOR"]["tol"],
+            "min_gap_naive": s["TEXT_SCM_BACKDOOR"]["min_gap_naive"],
+        },
+        "TEXT_WORLD_MODEL_TRANSITION_L1": s["TEXT_WORLD_MODEL_TRANSITION_L1"],
+        "TEXT_PLANNING_VI_EQUALS_BRUTE_FORCE": {
+            "abs_return_diff": s["TEXT_PLANNING_VI_EQUALS_BRUTE_FORCE"]["abs_return_diff"],
+            "vi_return": s["TEXT_PLANNING_VI_EQUALS_BRUTE_FORCE"]["vi_return"],
+            "bf_return": s["TEXT_PLANNING_VI_EQUALS_BRUTE_FORCE"]["bf_return"],
+        },
+        "TEXT_SAFETY_CONSTRAINT_POLICY_SELECTED": {
+            "chosen_action": s["TEXT_SAFETY_CONSTRAINT_POLICY_SELECTED"]["chosen_action"],
+            "chosen_risk": s["TEXT_SAFETY_CONSTRAINT_POLICY_SELECTED"]["chosen_risk"],
+            "epsilon": s["TEXT_SAFETY_CONSTRAINT_POLICY_SELECTED"]["epsilon"],
+            "opt_risk": s["TEXT_SAFETY_CONSTRAINT_POLICY_SELECTED"]["opt_risk"],
+        },
+        "PARA_WORLD_MODEL_TRANSITION_L1": p["PARA_WORLD_MODEL_TRANSITION_L1"],
+        "DOC_SAFETY_TRADEOFF_FORCED": d["DOC_SAFETY_TRADEOFF_FORCED"],
+        "BLOCK_WORLD_MODEL_TRANSITION_L1": bw["BLOCK_WORLD_MODEL_TRANSITION_L1"],
+        "BLOCK_SAFETY_TRADEOFF_FORCED": bt["BLOCK_SAFETY_TRADEOFF_FORCED"],
+        "BLOCK_COUNTERFACTUAL_EXPLANATION": cf["BLOCK_COUNTERFACTUAL_EXPLANATION"],
+    }
 
     data = {
         "seed": seed,
@@ -82,8 +92,8 @@ def main() -> None:
     }
 
     Path(out_json).write_text(json.dumps(data, indent=2), encoding="utf-8")
-    print("[PASS] TEXT_FULL_STACK_SUMMARY_WRITTEN: out=" + out_json)
     print("[PASS] BLOCK_COUNTERFACTUAL_EXPLANATION_INCLUDED: out=" + cf_json)
+    print("[PASS] TEXT_FULL_STACK_SUMMARY_WRITTEN: out=" + out_json)
 
 if __name__ == "__main__":
     main()
