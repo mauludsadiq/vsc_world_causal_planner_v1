@@ -1,0 +1,16 @@
+{
+  "BLOCK_SAFETY_TRADEOFF_FORCED": {
+    "n": 32,
+    "mode": "feasible_best_return",
+    "epsilon": 0.1,
+    "chosen_kind": "const",
+    "chosen_meta": 5,
+    "chosen_return": 6.0,
+    "chosen_risk": 0.0,
+    "opt_kind": "const",
+    "opt_meta": 4,
+    "opt_return": 7.5,
+    "opt_risk": 1.0,
+    "forced": true
+  }
+}

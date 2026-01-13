@@ -1,0 +1,79 @@
+{
+  "n_states": 96,
+  "n_failures": 0,
+  "examples": [
+    {
+      "text": "the statement is unspecified.",
+      "tag": {
+        "M": 0,
+        "C": 0,
+        "S": 0,
+        "L": 0
+      }
+    },
+    {
+      "text": "the statement is unspecified at this time.",
+      "tag": {
+        "M": 0,
+        "C": 0,
+        "S": 0,
+        "L": 1
+      }
+    },
+    {
+      "text": "the statement is unspecified at this time, pending further detail.",
+      "tag": {
+        "M": 0,
+        "C": 0,
+        "S": 0,
+        "L": 2
+      }
+    },
+    {
+      "text": "The statement is unspecified.",
+      "tag": {
+        "M": 0,
+        "C": 0,
+        "S": 1,
+        "L": 0
+      }
+    },
+    {
+      "text": "The statement is unspecified at this time.",
+      "tag": {
+        "M": 0,
+        "C": 0,
+        "S": 1,
+        "L": 1
+      }
+    },
+    {
+      "text": "The statement is unspecified at this time, pending further detail.",
+      "tag": {
+        "M": 0,
+        "C": 0,
+        "S": 1,
+        "L": 2
+      }
+    },
+    {
+      "text": "the statement is unspecified; however, the sentence also asserts the opposite.",
+      "tag": {
+        "M": 0,
+        "C": 1,
+        "S": 0,
+        "L": 0
+      }
+    },
+    {
+      "text": "the statement is unspecified at this time; however, the sentence also asserts the opposite.",
+      "tag": {
+        "M": 0,
+        "C": 1,
+        "S": 0,
+        "L": 1
+      }
+    }
+  ],
+  "failures": []
+}

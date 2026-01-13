@@ -1,0 +1,10 @@
+{
+  "BLOCK_WORLD_MODEL_TRANSITION_L1": {
+    "n": 8,
+    "mean_l1": 0.034357175925926874,
+    "anchors": 32,
+    "reps_per_key": 20,
+    "samples": 138240,
+    "threshold": 0.3
+  }
+}
