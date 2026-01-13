@@ -104,7 +104,7 @@ def run(out_json: str, seed: int) -> dict:
             anchors.append(s0)
 
     # 2) Collect many samples per (s,act) key (so MLE is meaningful)
-    reps_per_key = _reps_per_key(40)  # per (anchor, act)
+    reps_per_key = REPS_PER_KEY  # per (anchor, act)
     transitions = []
     for s in anchors:
         for act in world.actions:
