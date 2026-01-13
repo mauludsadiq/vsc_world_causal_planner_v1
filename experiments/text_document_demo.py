@@ -95,6 +95,8 @@ def run(out_json: str, seed: int) -> dict:
         anchors = [s0]
 
     reps = 30
+    reps_per_key = 30
+
     transitions = []
     for s in anchors:
         for act in world.actions:
@@ -113,7 +115,7 @@ def run(out_json: str, seed: int) -> dict:
         "DOC_WORLD_MODEL_TRANSITION_L1": {
             "mean_l1": mean_l1,
             "anchors": len(anchors),
-            "reps_per_key": reps,
+            "reps_per_key": reps_per_key,
             "samples": len(transitions),
             "threshold": threshold,
         },
@@ -123,7 +125,7 @@ def run(out_json: str, seed: int) -> dict:
     Path(out_json).parent.mkdir(parents=True, exist_ok=True)
     Path(out_json).write_text(json.dumps(report, indent=2), encoding="utf-8")
 
-    print(f"[PASS] DOC_WORLD_MODEL_TRANSITION_L1: mean_l1={mean_l1:.6f} anchors={len(anchors)} reps={reps} samples={len(transitions)} threshold={threshold}")
+    print(f"[PASS] DOC_WORLD_MODEL_TRANSITION_L1: mean_l1={mean_l1:.6f} anchors={len(anchors)} reps_per_key={reps_per_key} samples={len(transitions)} threshold={threshold}")
     print(f"[PASS] DOC_SAFETY_CONSTRAINT_POLICY_SELECTED: mode={selection['mode']} chosen_action={selection['chosen_action']} chosen_risk={selection['chosen_risk']:.4f} epsilon={selection['epsilon']} opt_risk={selection['opt_risk']:.4f}")
     return report
 
