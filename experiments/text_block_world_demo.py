@@ -3,6 +3,7 @@ import json
 import random
 import sys
 from pathlib import Path
+from text_world.demo_scale import anchors, reps
 
 from text_world.env_block import (
     build_block_world,
@@ -39,7 +40,7 @@ def run(out_json: str, seed: int, n: int) -> dict:
     if not anchors:
         anchors = [s0]
 
-    reps = 20
+    reps = 5
     transitions = []
     for s in anchors:
         for act in world.actions:
