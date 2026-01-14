@@ -12,32 +12,33 @@ from text_world.state import (
 
 _FACT_NEUTRAL = [
     "the device supports wireless charging",
-    "the battery lasts all day",
-    "the screen is shatter-resistant",
+    "the battery lasts through a full day of use",
+    "the display resists cracks from minor drops",
+    "the camera performs well in low light",
+    "the phone is resistant to water splashes",
 ]
 _FACT_FORMAL = [
     "the device supports wireless charging",
-    "the battery sustains all-day operation",
-    "the display exhibits enhanced shatter resistance",
+    "the battery sustains a full day of typical operation",
+    "the display demonstrates improved resistance to shattering",
+    "the camera demonstrates improved low-light performance",
+    "the device exhibits resistance to incidental water exposure",
 ]
 
-# length-specific surface markers (must be injective)
 _UNSPEC_BY_LEN = {
-    LEN_SHORT: "the statement is unspecified",
-    LEN_MED: "the statement is unspecified at this time",
-    LEN_LONG: "the statement is unspecified at this time, pending further detail",
+    LEN_SHORT: "the claim is unspecified",
+    LEN_MED: "the claim is unspecified pending details",
+    LEN_LONG: "the claim is unspecified pending additional evidence",
 }
 
 _CONN_SHORT = " and "
 _CONN_MED = "; additionally, "
 _CONN_LONG = "; furthermore, "
 
-# For single-fact sentences, we still need length to be observable.
-# We append a length-specific adverbial phrase that is grammatically acceptable.
 _SINGLE_SUFFIX_BY_LEN = {
     LEN_SHORT: "",
-    LEN_MED: ", in brief",
-    LEN_LONG: ", in detail",
+    LEN_MED: ", briefly",
+    LEN_LONG: ", with additional detail",
 }
 
 _CONTRADICT_CLAUSE = "; however, the sentence also asserts the opposite"
@@ -46,7 +47,7 @@ def render_sentence_clean(st: SentenceState) -> str:
     tpl = _FACT_FORMAL if st.style == STYLE_FORMAL else _FACT_NEUTRAL
 
     facts: List[str] = []
-    for i in range(3):
+    for i in range(len(tpl)):
         if (st.fact_mask >> i) & 1:
             facts.append(tpl[i])
 
@@ -89,7 +90,7 @@ def parse_sentence_clean(text: str) -> SentenceState:
     t = text.strip()
     if not t.endswith("."):
         raise ValueError("sentence must end with '.'")
-    t = t[:-1]  # remove final dot
+    t = t[:-1]
 
     contradiction = 0
     if t.endswith(_CONTRADICT_CLAUSE):
@@ -99,14 +100,12 @@ def parse_sentence_clean(text: str) -> SentenceState:
     style = STYLE_FORMAL if (t[:1].isupper()) else STYLE_NEUTRAL
     t_norm = t[0].lower() + t[1:] if t else t
 
-    # detect unspecified (length injective here)
     for L, u in _UNSPEC_BY_LEN.items():
         if t_norm == u:
             return SentenceState(fact_mask=0, contradiction=contradiction, style=style, length=L)
 
     facts = _FACT_FORMAL if style == STYLE_FORMAL else _FACT_NEUTRAL
 
-    # detect single-fact + length suffix
     for L, suf in _SINGLE_SUFFIX_BY_LEN.items():
         if suf == "":
             continue
@@ -117,12 +116,10 @@ def parse_sentence_clean(text: str) -> SentenceState:
                 m = 1 << facts.index(base)
                 return SentenceState(fact_mask=m, contradiction=contradiction, style=style, length=L)
 
-    # single-fact short (no suffix) must be checked last (otherwise ambiguous)
     if t_norm in facts:
         m = 1 << facts.index(t_norm)
         return SentenceState(fact_mask=m, contradiction=contradiction, style=style, length=LEN_SHORT)
 
-    # multi-fact: connectors reveal length
     if _CONN_LONG in t_norm:
         parts = [p.strip() for p in t_norm.split(_CONN_LONG) if p.strip()]
         L = LEN_LONG
