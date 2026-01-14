@@ -25,3 +25,12 @@ build/
 
 # packaging artifacts
 *.egg-info/
+
+# local runs
+logs/
+results/
+*.log
+
+# local venv + build metadata
+.venv/
+*.egg-info/
