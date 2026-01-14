@@ -27,7 +27,8 @@ def main() -> None:
     loop = json.loads(Path(tmp_loop).read_text(encoding="utf-8"))
     best = beam["BLOCK_BEAM_SEARCH"]
 
-    main_reply = f"Chose path {best['best_path']} because estimated value={best['best_value']:.4f} and risk_max={best['best_risk_max']:.4f}<=epsilon={epsilon}. Final text-state: {best['best_text']}"
+    best_text = best.get("best_text", "")
+    main_reply = f"Chose path {best['best_path']} because estimated value={best['best_value']:.4f} and risk_max={best['best_risk_max']:.4f}<=epsilon={epsilon}. Final text-state: {best_text}"
 
     safety = {
         "epsilon": epsilon,
