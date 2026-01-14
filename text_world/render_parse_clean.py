@@ -11,18 +11,15 @@ from text_world.state import (
 )
 
 _FACT_NEUTRAL = [
-    "the device supports wireless charging",
-    "the battery lasts through a full day of use",
+    "the device supports Qi wireless charging",
+    "the battery lasts through a full day of typical use",
     "the display resists cracks from minor drops",
-    "the camera performs well in low light",
-    "the phone is resistant to water splashes",
 ]
+
 _FACT_FORMAL = [
-    "the device supports wireless charging",
+    "the device supports Qi-compatible wireless charging",
     "the battery sustains a full day of typical operation",
-    "the display demonstrates improved resistance to shattering",
-    "the camera demonstrates improved low-light performance",
-    "the device exhibits resistance to incidental water exposure",
+    "the display exhibits improved resistance to cracking from minor drops",
 ]
 
 _UNSPEC_BY_LEN = {
@@ -43,11 +40,12 @@ _SINGLE_SUFFIX_BY_LEN = {
 
 _CONTRADICT_CLAUSE = "; however, the sentence also asserts the opposite"
 
+
 def render_sentence_clean(st: SentenceState) -> str:
     tpl = _FACT_FORMAL if st.style == STYLE_FORMAL else _FACT_NEUTRAL
 
     facts: List[str] = []
-    for i in range(len(tpl)):
+    for i in range(3):
         if (st.fact_mask >> i) & 1:
             facts.append(tpl[i])
 
@@ -78,6 +76,7 @@ def render_sentence_clean(st: SentenceState) -> str:
 
     return core + "."
 
+
 def render_sentence_sidecar(st: SentenceState) -> Tuple[str, Dict[str, int]]:
     return render_sentence_clean(st), {
         "M": st.fact_mask,
@@ -85,6 +84,7 @@ def render_sentence_sidecar(st: SentenceState) -> Tuple[str, Dict[str, int]]:
         "S": st.style,
         "L": st.length,
     }
+
 
 def parse_sentence_clean(text: str) -> SentenceState:
     t = text.strip()
@@ -110,8 +110,7 @@ def parse_sentence_clean(text: str) -> SentenceState:
         if suf == "":
             continue
         if t_norm.endswith(suf):
-            base = t_norm[: -len(suf)]
-            base = base.strip()
+            base = t_norm[: -len(suf)].strip()
             if base in facts:
                 m = 1 << facts.index(base)
                 return SentenceState(fact_mask=m, contradiction=contradiction, style=style, length=L)

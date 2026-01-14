@@ -73,7 +73,7 @@ def run_block_beam_search(out_json: str, seed: int = 0, epsilon: float = 0.15, d
     best = frontier[0]
 
     best_obj = world.states[best.s]
-    best_text = str(best_obj)
+    best_text = render_block_clean(best_obj)
 
     rejected = None
     for cand in expanded:
