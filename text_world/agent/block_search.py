@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 
 from text_world.env_block import build_block_world, sample_transition
+from text_world.render_block_clean import render_block_clean
 
 @dataclass
 class Node:
