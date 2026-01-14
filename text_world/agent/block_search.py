@@ -71,6 +71,9 @@ def run_block_beam_search(out_json: str, seed: int = 0, epsilon: float = 0.15, d
 
     best = frontier[0]
 
+    best_obj = world.states[best.s]
+    best_text = str(best_obj)
+
     rejected = None
     for cand in expanded:
         if cand.risk_max > epsilon:
@@ -85,11 +88,15 @@ def run_block_beam_search(out_json: str, seed: int = 0, epsilon: float = 0.15, d
             "beam": int(beam),
             "best_path": [int(x) for x in best.path],
             "best_return_sum": float(best.ret_sum),
+            "best_value": float(best.ret_sum),
             "best_risk_max": float(best.risk_max),
+            "best_text": best_text,
             "rejected_example": None if rejected is None else {
                 "path": [int(x) for x in rejected.path],
                 "return_sum": float(rejected.ret_sum),
+                "value": float(rejected.ret_sum),
                 "risk_max": float(rejected.risk_max),
+                "risk": float(rejected.risk_max),
             },
         }
     }
