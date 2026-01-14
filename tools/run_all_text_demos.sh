@@ -30,3 +30,5 @@ $PY -m experiments.text_self_prompt_loop_demo results/text_self_prompt_loop.json
 $PY -m experiments.text_grammar_bootstrap_demo results/text_grammar_bootstrap.json compose_v0 50
 $PY -m experiments.text_block_beam_search_demo results/text_block_beam_search.json "$SEED" 0.15 "$N_BLOCK" 8
 $PY -m experiments.text_personality_agent_demo results/text_personality_agent.json "$SEED" 0.15
+
+python -m experiments.text_block_hier_demo results/text_block_hier_demo.json "$SEED" "$N_BLOCK" 6
