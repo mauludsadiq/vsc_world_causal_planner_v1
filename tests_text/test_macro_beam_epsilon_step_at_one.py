@@ -37,8 +37,8 @@ def test_macro_beam_epsilon_step_at_one(tmp_path):
     assert int(search_100["n_candidates_total"]) == 374544
 
     # Step: ε < 1 rejects; ε = 1 rejects none.
-    assert int(search_099["n_rejected_total"]) == 53343
-    assert int(search_099["n_kept_total"]) == 321201
+    assert int(search_099["n_rejected_total"]) == 53429
+    assert int(search_099["n_kept_total"]) == 321115
     assert int(search_100["n_rejected_total"]) == 0
     assert int(search_100["n_kept_total"]) == 374544
 

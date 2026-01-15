@@ -34,3 +34,12 @@ results/
 # local venv + build metadata
 .venv/
 *.egg-info/
+
+# generated datasets / models / outputs
+data/
+models/
+results/
+logs/
+
+# local backup noise
+*.bak

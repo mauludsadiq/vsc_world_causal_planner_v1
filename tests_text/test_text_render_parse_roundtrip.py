@@ -22,4 +22,4 @@ def test_render_parse_demo_prints_pass_line(tmp_path):
 
     data = json.loads(Path(out_json).read_text(encoding="utf-8"))
     assert data["n_failures"] == 0
-    assert data["n_states"] == 96
+    assert data["n_states"] == 256

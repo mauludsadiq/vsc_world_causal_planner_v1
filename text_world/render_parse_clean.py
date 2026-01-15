@@ -8,34 +8,42 @@ from text_world.state import (
     LEN_SHORT,
     LEN_MED,
     LEN_LONG,
+    LEN_XLONG,
 )
 
 _FACT_NEUTRAL = [
     "the device supports Qi wireless charging",
     "the battery lasts through a full day of typical use",
     "the display resists cracks from minor drops",
+    "the camera performs well in low light",
+
 ]
 
 _FACT_FORMAL = [
     "the device supports Qi-compatible wireless charging",
     "the battery sustains a full day of typical operation",
     "the display exhibits improved resistance to cracking from minor drops",
+    "the camera demonstrates strong low-light performance",
+
 ]
 
 _UNSPEC_BY_LEN = {
     LEN_SHORT: "the claim is unspecified",
     LEN_MED: "the claim is unspecified pending details",
     LEN_LONG: "the claim is unspecified pending additional evidence",
+    LEN_XLONG: "the claim is unspecified pending exhaustive detail",
 }
 
 _CONN_SHORT = " and "
 _CONN_MED = "; additionally, "
 _CONN_LONG = "; furthermore, "
+_CONN_XLONG = "; moreover, "
 
 _SINGLE_SUFFIX_BY_LEN = {
     LEN_SHORT: "",
     LEN_MED: ", briefly",
     LEN_LONG: ", with additional detail",
+    LEN_XLONG: ", with exhaustive detail",
 }
 
 _CONTRADICT_CLAUSE = "; however, the sentence also asserts the opposite"
@@ -45,7 +53,7 @@ def render_sentence_clean(st: SentenceState) -> str:
     tpl = _FACT_FORMAL if st.style == STYLE_FORMAL else _FACT_NEUTRAL
 
     facts: List[str] = []
-    for i in range(3):
+    for i in range(len(tpl)):
         if (st.fact_mask >> i) & 1:
             facts.append(tpl[i])
 
@@ -63,10 +71,14 @@ def render_sentence_clean(st: SentenceState) -> str:
                 core = facts[0]
                 for f in facts[1:]:
                     core = core + _CONN_MED + f
-            else:
+            elif st.length == LEN_LONG:
                 core = facts[0]
                 for f in facts[1:]:
                     core = core + _CONN_LONG + f
+            else:
+                core = facts[0]
+                for f in facts[1:]:
+                    core = core + _CONN_XLONG + f
 
     if st.contradiction == 1:
         core = core + _CONTRADICT_CLAUSE
@@ -119,7 +131,10 @@ def parse_sentence_clean(text: str) -> SentenceState:
         m = 1 << facts.index(t_norm)
         return SentenceState(fact_mask=m, contradiction=contradiction, style=style, length=LEN_SHORT)
 
-    if _CONN_LONG in t_norm:
+    if _CONN_XLONG in t_norm:
+        parts = [p.strip() for p in t_norm.split(_CONN_XLONG) if p.strip()]
+        L = LEN_XLONG
+    elif _CONN_LONG in t_norm:
         parts = [p.strip() for p in t_norm.split(_CONN_LONG) if p.strip()]
         L = LEN_LONG
     elif _CONN_MED in t_norm:
