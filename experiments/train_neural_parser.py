@@ -42,6 +42,8 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     model_name = os.environ.get("NEURAL_PARSER_MODEL", "distilbert-base-uncased")
+    resume = os.environ.get("RESUME")
+    load_dir = resume if resume else model_name
 
     random.seed(seed)
     torch.manual_seed(seed)
@@ -52,10 +54,10 @@ def main() -> int:
     ds_train = Dataset.from_list([{"text": r["text"], "label": int(r["sid"])} for r in train_rows])
     ds_test = Dataset.from_list([{"text": r["text"], "label": int(r["sid"])} for r in test_rows])
 
-    tok = AutoTokenizer.from_pretrained(model_name)
+    tok = AutoTokenizer.from_pretrained(load_dir)
 
     def tokenize(batch):
-        return tok(batch["text"], truncation=True, padding="max_length", max_length=64)
+        return tok(batch["text"], truncation=True, padding="max_length", max_length=96)
 
     ds_train = ds_train.map(tokenize, batched=True)
     ds_test = ds_test.map(tokenize, batched=True)
@@ -63,7 +65,7 @@ def main() -> int:
     ds_train.set_format(type="torch", columns=["input_ids", "attention_mask", "label"])
     ds_test.set_format(type="torch", columns=["input_ids", "attention_mask", "label"])
 
-    model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=256)
+    model = AutoModelForSequenceClassification.from_pretrained(load_dir, num_labels=256)
 
     args = TrainingArguments(
         output_dir=str(out_dir),
@@ -96,7 +98,7 @@ def main() -> int:
         compute_metrics=compute_metrics,
     )
 
-    trainer.train()
+    trainer.train(resume_from_checkpoint=resume)
     trainer.save_model(str(out_dir))
     tok.save_pretrained(str(out_dir))
 
