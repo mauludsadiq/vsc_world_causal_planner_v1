@@ -43,3 +43,6 @@ logs/
 
 # local backup noise
 *.bak
+
+# local backups
+*.bak.*
