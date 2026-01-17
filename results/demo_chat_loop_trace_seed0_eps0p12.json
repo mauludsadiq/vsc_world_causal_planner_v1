@@ -1,0 +1,101 @@
+{
+  "kind": "demo_trace",
+  "repo": "vsc_world_causal_planner_v1",
+  "entrypoint": "text_world.agent.chat_loop",
+  "seed": 0,
+  "epsilon": 0.12,
+  "inputs": [
+    "open the door",
+    "look around",
+    "exit"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "sid_in": 0,
+      "utterance": "open the door",
+      "main_reply": "the result is that state 16 is active. and this follows from the chosen safe action.",
+      "action_trace": {
+        "parser": "action9",
+        "mode": "symbolic",
+        "utterance": "open the door",
+        "topk_action_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        "topk_scores": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      },
+      "sid256_trace": {
+        "parser": "sid256",
+        "utterance": "open the door",
+        "topk_sid_ids": [160, 128, 64, 96, 144],
+        "topk_scores": [
+          2.012455463409424,
+          1.8563365936279297,
+          -1.3657714128494263,
+          -1.567851185798645,
+          -1.9577115774154663
+        ]
+      },
+      "safety_verdict": {
+        "mode": "feasible_best_return",
+        "epsilon": 0.12,
+        "risk_max": 0.096,
+        "ok": true,
+        "chosen_action": 0,
+        "sid_in": 0,
+        "sid_out": 16,
+        "turn": 1
+      },
+      "counterfactual_rejected_branch": {
+        "reason": "risk bound",
+        "epsilon": 0.12,
+        "opt_risk": 0.096
+      },
+      "sid_out": 16
+    },
+    {
+      "turn": 2,
+      "sid_in": 16,
+      "utterance": "look around",
+      "main_reply": "the result is that state 80 is active. and this follows from the chosen safe action.",
+      "action_trace": {
+        "parser": "action9",
+        "mode": "symbolic",
+        "utterance": "look around",
+        "topk_action_ids": [2, 0, 1, 3, 4, 5, 6, 7, 8],
+        "topk_scores": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      },
+      "sid256_trace": {
+        "parser": "sid256",
+        "utterance": "look around",
+        "topk_sid_ids": [0, 32, 160, 128, 96],
+        "topk_scores": [
+          1.3195161819458008,
+          1.2608847618103027,
+          0.1552852988243103,
+          0.011513501405715942,
+          -0.4549131393432617
+        ]
+      },
+      "safety_verdict": {
+        "mode": "feasible_best_return",
+        "epsilon": 0.12,
+        "risk_max": 0.096,
+        "ok": true,
+        "chosen_action": 2,
+        "sid_in": 16,
+        "sid_out": 80,
+        "turn": 2
+      },
+      "counterfactual_rejected_branch": {
+        "reason": "risk bound",
+        "epsilon": 0.12,
+        "opt_risk": 0.096
+      },
+      "sid_out": 80
+    }
+  ],
+  "final": {
+    "turn": 2,
+    "last_sid": 80,
+    "epsilon": 0.12
+  }
+}
