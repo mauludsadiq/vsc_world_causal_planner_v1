@@ -64,8 +64,9 @@ def chat_loop(seed: int = 0, epsilon: float = 0.12) -> int:
         r = render_state(sid_out)
 
         print("MAIN_REPLY:")
-
-        print(r.narration)
+from text_world.agent.state_renderer import render_sid
+r = render_sid(sid_out)
+print(r.narration)
 
         print("ACTION_TRACE:")
         print(json.dumps({

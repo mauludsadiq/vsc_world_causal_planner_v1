@@ -216,3 +216,50 @@ def step_safe(sid_in: int, epsilon: float, seed: int) -> StepOut:
         mode=mode,
         rejected=dict(rejected),
     )
+
+def step_safe_from_actions(sid_in: int, epsilon: float, seed: int, action_ids: List[int]) -> StepOut:
+    """
+    Safe step constrained by candidate action ids:
+      1) build world
+      2) build candidate one-step policies from action_ids
+      3) select best feasible policy under risk
+      4) sample one transition
+    """
+    if not isinstance(action_ids, list) or len(action_ids) == 0:
+        raise RuntimeError("planner_bridge.step_safe_from_actions: action_ids must be non-empty list[int]")
+
+    env_mod, world = _build_world()
+
+    s0 = int(sid_in)
+    H = 1
+
+    candidates = []
+    for a in action_ids:
+        candidates.append({s0: int(a)})
+
+    sel = _first_available((("text_world.planning_text", "select_policy_under_risk"),))
+    if sel is None:
+        raise RuntimeError("planner_bridge: could not import text_world.planning_text.select_policy_under_risk")
+
+    selection = sel(world, candidates, int(s0), int(H), float(epsilon))
+
+    chosen_action = int(selection["chosen_action"])
+    chosen_risk = float(selection["chosen_risk"])
+    mode = str(selection.get("mode", "feasible_best_return"))
+
+    rejected = selection.get("rejected", None)
+    if not isinstance(rejected, dict):
+        rejected = {"reason": "risk bound", "epsilon": float(epsilon), "opt_risk": float(selection.get("opt_risk", chosen_risk))}
+
+    if chosen_risk > float(epsilon):
+        raise RuntimeError(f"planner_bridge.step_safe_from_actions: unsafe choice chosen_risk={chosen_risk} epsilon={epsilon}")
+
+    sid_out = _sample_transition(env_mod, world, int(sid_in), int(chosen_action), int(seed))
+
+    return StepOut(
+        sid_out=int(sid_out),
+        chosen_action=int(chosen_action),
+        chosen_risk=float(chosen_risk),
+        mode=mode,
+        rejected=dict(rejected),
+    )
