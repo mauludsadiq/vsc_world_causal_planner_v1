@@ -46,3 +46,6 @@ logs/
 
 # local backups
 *.bak.*
+
+results/*
+\!results/demo_chat_loop_trace_seed0_eps0p12.json
