@@ -111,7 +111,10 @@ def decode_text_to_sid(
     """
     # 1) Symbolic-first
     if symbolic_first:
-        sid = parser_clean(text)
+        try:
+            sid = parser_clean(text)
+        except Exception:
+            sid = None
         if sid is not None:
             return {
                 "mode": "symbolic",
