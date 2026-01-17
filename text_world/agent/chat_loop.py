@@ -1,121 +1,69 @@
 from __future__ import annotations
 
-import json
-from dataclasses import dataclass
-from typing import Any, Dict, Tuple
+from typing import Any, Callable, Dict, Optional
 
-from text_world.agent.planner_bridge import step_safe_from_actions
-from text_world.agent.action_parser import predict_action9_topk
-from text_world.agent.neural_parser import NeuralParser
-from text_world.agent.state_renderer import render_state
+from text_world.agent.dialogue_proof import DecodeProof, TurnProof, build_dialogue_proof
 
 
-@dataclass
-class DialogueState:
-    seed: int
-    epsilon: float
-    turn: int = 0
-    sid: int = 0
-
-
-def _select_next_sid(
-    sid_in: int,
-    epsilon: float,
+def run_dialogue_script(
+    *,
     seed: int,
-    utterance: str,
-    action_topk: list[int],
-) -> Tuple[int, int, float, str, Dict[str, Any]]:
-    out = step_safe_from_actions(
-        sid_in=int(sid_in),
-        epsilon=float(epsilon),
-        seed=int(seed),
-        action_ids=[int(a) for a in action_topk],
-    )
-    return int(out.sid_out), int(out.chosen_action), float(out.chosen_risk), str(out.mode), dict(out.rejected)
+    n_turns: int,
+    render_fn: Callable[[int], str],
+    decode_fn: Callable[[str, int], Dict[str, Any]],
+) -> Dict[str, Any]:
+    """
+    Runs a deterministic dialogue script.
 
+    Proof-carrying artifact:
+      - each turn records the raw user_text
+      - decode proof (symbolic vs neural vs reject)
+      - state_id_in/out
+      - assistant_text (rendered from chosen state_id_out if any)
+    """
+    turns = []
 
-def chat_loop(seed: int = 0, epsilon: float = 0.12) -> int:
-    ds = DialogueState(seed=int(seed), epsilon=float(epsilon), turn=0, sid=0)
+    state_id = 0
 
-    print("CHAT_LOOP_READY")
-    print(json.dumps({"seed": ds.seed, "epsilon": ds.epsilon}, indent=2))
+    for t in range(int(n_turns)):
+        user_text = f"user turn {t}"
+        d = decode_fn(user_text, int(seed))
 
-    sid_parser = NeuralParser(NeuralParser.default_model_dir(), device="cpu")
+        mode = str(d.get("mode"))
+        sid_hat = d.get("sid_hat", None)
 
-    while True:
-        try:
-            s = input("> ").strip()
-        except EOFError:
-            break
-
-        if s == "":
-            continue
-
-        if s.lower() in ["exit", "quit"]:
-            break
-
-        ds.turn += 1
-
-        action_out = predict_action9_topk(s, k=9, seed=ds.seed)
-        sid_out, chosen_action, risk_max, mode, rejected = _select_next_sid(
-            ds.sid, ds.epsilon, ds.seed, s, action_out.action_ids
+        dp = DecodeProof(
+            mode=mode,
+            sid_hat=(int(sid_hat) if sid_hat is not None else None),
+            p_top1=(float(d["p_top1"]) if "p_top1" in d and d["p_top1"] is not None else None),
+            p_top2=(float(d["p_top2"]) if "p_top2" in d and d["p_top2"] is not None else None),
+            margin=(float(d["margin"]) if "margin" in d and d["margin"] is not None else None),
+            entropy=(float(d["entropy"]) if "entropy" in d and d["entropy"] is not None else None),
+            tau_p=float(d.get("tau_p", 0.0)),
+            tau_margin=float(d.get("tau_margin", 0.0)),
+            seed=int(d.get("seed", seed)),
+            reason=(str(d["reason"]) if "reason" in d else None),
         )
 
-        r = render_state(sid_out)
+        if mode in ("symbolic", "neural") and dp.sid_hat is not None:
+            state_id_out: Optional[int] = int(dp.sid_hat)
+            assistant_text = str(render_fn(state_id_out))
+        else:
+            state_id_out = None
+            assistant_text = None
 
-        print("MAIN_REPLY:")
+        turns.append(
+            TurnProof(
+                turn=int(t),
+                user_text=str(user_text),
+                decoded=dp,
+                state_id_in=int(state_id),
+                state_id_out=(int(state_id_out) if state_id_out is not None else None),
+                assistant_text=(str(assistant_text) if assistant_text is not None else None),
+            )
+        )
 
-        print(r.narration)
+        if state_id_out is not None:
+            state_id = int(state_id_out)
 
-        print("ACTION_TRACE:")
-        print(json.dumps({
-            "parser": "action9",
-            "mode": action_out.mode,
-            "utterance": s,
-            "topk_action_ids": action_out.action_ids,
-            "topk_scores": action_out.scores,
-        }, indent=2))
-
-        sid256_out = sid_parser.predict_sid256_topk(s, k=5, seed=ds.seed)
-        print("SID256_TRACE:")
-        print(json.dumps({
-            "parser": "sid256",
-            "utterance": s,
-            "topk_sid_ids": sid256_out.sid_ids,
-            "topk_scores": sid256_out.scores,
-        }, indent=2))
-
-        print("SAFETY_VERDICT:")
-        print(json.dumps({
-            "mode": mode,
-            "epsilon": ds.epsilon,
-            "risk_max": risk_max,
-            "ok": True,
-            "chosen_action": chosen_action,
-            "sid_in": ds.sid,
-            "sid_out": sid_out,
-            "turn": ds.turn,
-        }, indent=2))
-
-        print("COUNTERFACTUAL_REJECTED_BRANCH:")
-        print(json.dumps(rejected, indent=2))
-
-        ds.sid = int(sid_out)
-
-        if ds.turn >= 2:
-            break
-
-    print("CHAT_LOOP_DONE")
-    print(f"turn={ds.turn} last_sid={ds.sid} epsilon={ds.epsilon}")
-    return 0
-
-
-def main() -> int:
-    import sys
-    seed = int(sys.argv[1]) if len(sys.argv) >= 2 else 0
-    epsilon = float(sys.argv[2]) if len(sys.argv) >= 3 else 0.12
-    return chat_loop(seed=seed, epsilon=epsilon)
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+    return build_dialogue_proof(int(seed), turns)
