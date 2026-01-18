@@ -1,49 +1,121 @@
-# World Modeling + Planning (test-backed repo identity)
+vsc_world_causal_planner_v1 — Deterministic World Modeling + Planning + Proof-Carrying Agent
 
-This repo is a deterministic harness that validates three linked capabilities in a small controlled environment:
+0) Repo identity
 
-1) **Causal estimation under confounding**: backdoor adjustment matches the true do-effect; naive conditioning deviates.
-2) **World-model learning**: a learned controlled transition model matches ground-truth dynamics in L1.
-3) **Planning correctness**: value iteration returns the same optimal stationary policy as brute-force search.
+vsc_world_causal_planner_v1 is a deterministic, test-backed causal + world-model + planning + safety + agent harness implemented as a small reversible text world.
 
-## What “tests green” means (exact PASS lines)
+This repo does not claim scale, intelligence, or general “chat ability.”
 
-```
-[PASS] SCM_DO_EFFECT_BACKDOOR: backdoor_x0=0.307904 backdoor_x1=0.777974 max_abs_err_backdoor=0.00443 max_abs_gap_naive=0.090943 min_gap_naive=0.08 naive_x0=0.218209 naive_x1=0.845511 tol=0.03 true_do_x0=0.309152 true_do_x1=0.773544 :: Backdoor matches do-effect; naive conditional deviates under confounding.
-[PASS] WORLD_MODEL_TRANSITION_L1: mean_l1=0.001385 samples=32000 threshold=0.06 :: Learned controlled transition model approximates ground truth.
-[PASS] PLANNING_VI_EQUALS_BRUTE_FORCE: abs_return_diff=0.0 bf_policy=[0, 0, 0] bf_return=4.0 vi_policy=[0, 0, 0] vi_return=4.0 :: Value iteration matches brute-force optimal stationary policy.
-```
+It proves—via numerical inequalities, PASS lines, and cryptographically anchored JSON artifacts—that the following end-to-end chain works:
 
-## Setup
+SCM identification → backdoor do-effect → learned controlled transition model → optimal planning (VI) → epsilon-risk safety selection → proof-carrying dialogue artifacts (sha256)
 
-### Requirements
-- Python 3.9+ (3.10+ also fine)
-- `pip`
+Truth in this repo means:
 
-### Create venv + install
-```bash
+A claim is valid only if it produces a deterministic witness artifact that passes tests.
+
+1) What the repo proves
+
+1.1 Causal estimation under confounding (Backdoor)
+
+The repo contains a small SCM with confounding and proves:
+
+- Backdoor adjustment matches the true do-effect within tolerance
+- Naive conditioning deviates under confounding
+
+Backdoor computes:
+
+E[Y | do(X=x)] = sum_z E[Y | X=x, Z=z] P(Z=z)
+
+1.2 World-model learning (controlled transition model)
+
+The repo learns a controlled transition model T_hat(s' | s, a) and proves mean L1 error to ground truth is below threshold.
+
+1.3 Planning correctness (Value Iteration equals brute force)
+
+The repo proves that value iteration returns the same optimal stationary policy and return as brute-force search on the tested instance.
+
+1.4 Safety-constrained selection (epsilon-risk)
+
+The repo enforces an epsilon-risk constraint and deterministically selects the best feasible action, recording the verdict in artifacts.
+
+2) Agent layer + proof-carrying dialogue artifacts
+
+2.1 Inverse decoding (symbolic-first → neural fallback)
+
+User text is decoded into a discrete state id sid_hat.
+
+- Symbolic-first parse is attempted first (clean grammar)
+- Neural fallback is used only when confidence gating passes
+
+Confidence gating is enforced using thresholds tau_p and tau_margin:
+
+p_top1 >= tau_p
+(p_top1 - p_top2) >= tau_margin
+
+Every decode produces a proof object recording mode, sid_hat, probabilities, margin, entropy, thresholds, and seed.
+
+2.2 Proof-carrying dialogue turns
+
+Each agent run emits turn-by-turn witness records that include:
+
+turn, user_text, decode, sid_in, sid_out, assistant_text, main_reply, safety_verdict, rejected_counterfactuals
+
+The full dialogue artifact is stable JSON and includes a sha256 commitment.
+
+3) What “tests green” means
+
+When the suite is green, the repo has proven (in this harness):
+
+- Backdoor do-effect matches ground truth within tolerance
+- Learned transition model matches ground truth under mean L1 threshold
+- Value iteration matches brute-force optimal policy/return exactly
+- Safety constraint selection is deterministic and recorded
+- Agent loop emits proof-carrying dialogue artifacts with sha256
+- Neural inverse decode contract is deterministic and confidence-gated
+
+4) Setup
+
+Requirements:
+- Python 3.9+
+- pip
+
+Create venv and install:
+
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-```
 
-## Run
+5) Run
 
-### Run the test suite
-```bash
-pytest -q
-```
+Run full test suite:
 
-### Reproduce the PASS transcript (recommended)
-Run tests with minimal output (PASS lines come from the tests):
-```bash
-pytest -q
-```
+python -m pytest -q
 
-## Contract
+Run text-world causal + planning demos (write JSON artifacts):
 
-If the suite is green, the repo guarantees (in this harness):
-- Backdoor-adjusted causal estimates match the ground-truth do-effect within tolerance.
-- The learned transition model matches ground-truth transitions (mean L1 below threshold).
-- Value iteration’s policy/return match brute-force optimal planning exactly for the tested instance.
+python -m experiments.text_sentence_demo results/text_sentence_demo.json 0
+python -m experiments.text_paragraph_world_demo results/text_paragraph_world_demo.json 0
+
+Run agent chat demo (symbolic-only):
+
+python -m experiments.agent_chat_demo results/agent/agent_chat_demo.json 0
+
+Run agent chat demo (symbolic-first + neural fallback):
+
+python -m experiments.agent_chat_demo results/agent/agent_chat_demo_with_neural.json 0 models/neural_parser_resume
+
+Run CI-style smoke script:
+
+bash tools/ci_text_stack_smoke.sh 0 8
+
+6) Contract
+
+If the suite is green, this repo guarantees:
+
+- Backdoor-adjusted causal estimates match ground-truth do-effect within tolerance
+- Learned controlled transition model matches ground truth under mean L1 threshold
+- Value iteration matches brute-force optimal planning on the tested instance
+- Epsilon-risk safety decision is deterministic and recorded
+- Proof-carrying dialogue artifacts are schema-valid and sha256-anchored
