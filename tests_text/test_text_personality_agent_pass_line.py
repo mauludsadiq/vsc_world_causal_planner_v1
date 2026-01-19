@@ -9,7 +9,7 @@ def test_personality_agent_schema(tmp_path):
     cmd = [sys.executable, "-m", "experiments.text_personality_agent_demo", str(out_json), "0", "0.15"]
     p = subprocess.run(cmd, capture_output=True, text=True)
     assert p.returncode == 0, p.stderr
-    assert "[PASS] PERSONALITY_CONTRACT_WRITTEN" in p.stdout
+    assert "[PASS] PERSONALITY_CONTRACT_WRITTEN" in (p.stderr + p.stdout)
     data = json.loads(Path(out_json).read_text(encoding="utf-8"))
     d = data["PERSONALITY_CONTRACT"]
     assert "main_reply" in d

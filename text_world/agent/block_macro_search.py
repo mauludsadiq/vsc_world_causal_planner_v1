@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from text_world.agent.debug_policy import emit_pass
+
 import itertools
 import json
 import random
@@ -172,8 +174,8 @@ def run_block_macro_beam_search(
     with open(out_json, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 
-    print("[PASS] BLOCK_MACRO_BEAM_SEARCH_WRITTEN")
-    print(
+    emit_pass("[PASS] BLOCK_MACRO_BEAM_SEARCH_WRITTEN")
+    emit_pass(
         "[PASS] BLOCK_MACRO_BEAM_SEARCH_BEST:"
         f" macro_len={macro_len}"
         f" topM={topM}"
