@@ -80,6 +80,8 @@ class StressCfg:
     synonym_bank: Optional[str]
     per_attack_limit: int
     shuffle: bool
+    subset_seed: Optional[int]
+    subset_n: Optional[int]
     topk: int
     max_text_preview: int
 
@@ -408,6 +410,8 @@ def main() -> int:
     ap.add_argument("--synonym_bank", type=str, default=None)
     ap.add_argument("--per_attack_limit", type=int, default=200)
     ap.add_argument("--shuffle", action="store_true")
+    ap.add_argument("--subset_seed", type=int, default=None)
+    ap.add_argument("--subset_n", type=int, default=None)
     ap.add_argument("--topk", type=int, default=5)
     ap.add_argument("--max_text_preview", type=int, default=120)
     args = ap.parse_args()
@@ -422,6 +426,8 @@ def main() -> int:
         synonym_bank=args.synonym_bank,
         per_attack_limit=int(args.per_attack_limit),
         shuffle=bool(args.shuffle),
+        subset_seed=args.subset_seed,
+        subset_n=args.subset_n,
         topk=int(args.topk),
         max_text_preview=int(args.max_text_preview),
     )
@@ -429,6 +435,15 @@ def main() -> int:
     rng = random.Random(cfg.seed)
 
     rows = _read_jsonl(cfg.data_jsonl)
+    if cfg.subset_n is not None:
+        rseed = cfg.subset_seed if cfg.subset_seed is not None else cfg.seed
+        rsub = random.Random(rseed)
+        if cfg.subset_n > len(rows):
+            raise ValueError(f"subset_n={cfg.subset_n} > len(rows)={len(rows)}")
+        idxs = list(range(len(rows)))
+        rsub.shuffle(idxs)
+        idxs = set(idxs[:cfg.subset_n])
+        rows = [r for j,r in enumerate(rows) if j in idxs]
     if cfg.shuffle:
         rng.shuffle(rows)
 
@@ -467,23 +482,28 @@ def main() -> int:
             if attack == "negation":
                 if (("does not support" in low) or ("doesn't support" in low)) and ("qi" in low):
                     forced_reject = True
-                    forced_reason = "negation_denies_qi_support"
+                    if not forced_reason:
+                        forced_reason = "negation_denies_qi_support"
                 if "asserts the opposite" in low:
                     forced_reject = True
-                    forced_reason = "negation_explicit_opposite_clause"
+                    if not forced_reason:
+                        forced_reason = "negation_explicit_opposite_clause"
                 if ((("does not support" in low) or ("doesn't support" in low)) and ("supports" in low) and ("qi" in low)):
                     forced_reject = True
-                    forced_reason = "negation_contradiction_supports_and_not_supports"
+                    if not forced_reason:
+                        forced_reason = "negation_contradiction_supports_and_not_supports"
 
             elif attack == "splice":
                 if ("unrelated:" in low) or ("lorem ipsum" in low) or ("placeholder clause" in low):
                     forced_reject = True
-                    forced_reason = "splice_unrelated_payload"
+                    if not forced_reason:
+                        forced_reason = "splice_unrelated_payload"
 
             elif attack == "typo":
                 if ("addtional" in low) and ("etail" in low):
                     forced_reject = True
-                    forced_reason = "typo_addtional_etail"
+                    if not forced_reason:
+                        forced_reason = "typo_addtional_etail"
 
             decision = "ACCEPT" if (pmax >= cfg.tau) else "REJECT"
             if forced_reject:
