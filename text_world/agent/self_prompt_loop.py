@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from text_world.agent.debug_policy import emit_pass
+
 import json
 import random
 from dataclasses import dataclass
@@ -194,6 +196,6 @@ def run_self_prompt_loop(out_json: str, seed: int = 0, epsilon: float = 0.15, ho
         json.dump(report, f, indent=2)
 
     last = transcript[-1]
-    print("[PASS] SELF_PROMPT_LOOP_WRITTEN")
-    print(f"[PASS] SELF_PROMPT_LOOP_LAST: action={last['chosen_action']} return={last['chosen_return']:.4f} risk={last['chosen_risk']:.4f}<=eps={float(epsilon):.4f}")
+    emit_pass("[PASS] SELF_PROMPT_LOOP_WRITTEN")
+    emit_pass(f"[PASS] SELF_PROMPT_LOOP_LAST: action={last['chosen_action']} return={last['chosen_return']:.4f} risk={last['chosen_risk']:.4f}<=eps={float(epsilon):.4f}")
     return report

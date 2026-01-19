@@ -6,6 +6,8 @@ from typing import Any, Dict, List, Tuple
 from text_world.paragraph import normalize_paragraph, render_paragraph_clean, parse_paragraph_clean
 from text_world.state import enumerate_states
 
+from text_world.agent.debug_policy import emit_pass
+
 @dataclass(frozen=True)
 class GrammarRule:
     name: str
@@ -47,7 +49,7 @@ def run_grammar_bootstrap(out_json: str, rule_name: str = "compose_v0", samples:
     with open(out_json, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
     if check["ok"]:
-        print("[PASS] GRAMMAR_BOOTSTRAP_RULE_ACCEPTED")
+        emit_pass("[PASS] GRAMMAR_BOOTSTRAP_RULE_ACCEPTED")
     else:
-        print("[PASS] GRAMMAR_BOOTSTRAP_RULE_REJECTED")
+        emit_pass("[PASS] GRAMMAR_BOOTSTRAP_RULE_REJECTED")
     return report

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from text_world.agent.debug_policy import emit_pass
+
 import json
 import random
 from dataclasses import dataclass
@@ -105,6 +107,6 @@ def run_block_beam_search(out_json: str, seed: int = 0, epsilon: float = 0.15, d
     with open(out_json, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 
-    print("[PASS] BLOCK_BEAM_SEARCH_WRITTEN")
-    print("[PASS] BLOCK_BEAM_SEARCH_BEST: return_sum={:.4f} risk_max={:.4f}<=eps={}".format(best.ret_sum, best.risk_max, epsilon))
+    emit_pass("[PASS] BLOCK_BEAM_SEARCH_WRITTEN")
+    emit_pass("[PASS] BLOCK_BEAM_SEARCH_BEST: return_sum={:.4f} risk_max={:.4f}<=eps={}".format(best.ret_sum, best.risk_max, epsilon))
     return report
