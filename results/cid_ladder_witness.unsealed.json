@@ -1,0 +1,45 @@
+{
+  "schema_version": "determinism_bundle.v2",
+  "bundle_sha256": null,
+
+  "inputs": {
+    "data_jsonl": {
+      "path": "data/enhanced/test.jsonl",
+      "sha256": "794ebca25e33203e166bf32184a010b4ee51deeea48d55b262ced95b3b6842b9"
+    },
+    "script": {
+      "path": "experiments/stress_verified_chat_attacks.py",
+      "sha256": "dacd2f6f672c5748914e4c5d0f2d739a4f1116a427f56a2a8a502534979a3e4b"
+    }
+  },
+
+  "params": {
+    "seed": 0,
+    "tau": 0.95,
+    "subset_n": 25,
+    "subset_seed": 123,
+    "per_attack_limit": 25,
+    "topk": 5,
+    "attacks": ["typo","splice","negation","synonym"]
+  },
+
+  "outputs": {
+    "attack_hashes": {
+      "typo":    { "A": "ea08c6e3860559bc92316d5659e833e087f9d4def5fd99160c3fe10a8fbc3f08",   "B": "ea08c6e3860559bc92316d5659e833e087f9d4def5fd99160c3fe10a8fbc3f08",   "equal": true },
+      "splice":  { "A": "b3a0de9a55c992b40e7948cdd5f5ae9e19ad094527b449888629ba4cb33a668f", "B": "b3a0de9a55c992b40e7948cdd5f5ae9e19ad094527b449888629ba4cb33a668f", "equal": true },
+      "negation":{ "A": "b1da15dfbaaa9fab148e17bb777c125b85eaa9eb096d1e22e34f104cc5739a97",    "B": "b1da15dfbaaa9fab148e17bb777c125b85eaa9eb096d1e22e34f104cc5739a97",    "equal": true },
+      "synonym": { "A": "3f325f2cc8890a9b93de0e239f6f848053e285bd647d200c3874de840ae53d96",    "B": "3f325f2cc8890a9b93de0e239f6f848053e285bd647d200c3874de840ae53d96",    "equal": true }
+    },
+
+    "file_digests": {
+      "results/subset_check_typo_a.json": "f30c829954cf6953ccfb6b224b0b30dd4e28366f2211990b537de62b33bfecfd",
+      "results/subset_check_typo_b.json": "e1f653968e91a49e5f7b20b58f2897bf24a5e143ad4f2d463a0e70d745c8faf5",
+      "results/subset_check_splice_a.json": "559426165e13b4a2bf3a0c74d38b3b099e8f5679eac1f662a4e400e98e14bea0",
+      "results/subset_check_splice_b.json": "279ac854c811d0dd995cd75054d5ed59a3fc27d7dd02715bfac76850195ce768",
+      "results/subset_check_negation_a.json": "55bfce8bc96e0817d775c89ed9dc7a09378c8f738ef0b85a1a34f59eac8eb5d1",
+      "results/subset_check_negation_b.json": "746f9ec9f9b6ddbc172ba03f77dadea38a8bc2bdc2b48b5bc75bcfc644b3ec0d",
+      "results/subset_check_synonym_a.json": "2c9f52e2d8778bbfeb99786a2a4c9454671e5cfd52c83b3ebbf75fe054d1ab5d",
+      "results/subset_check_synonym_b.json": "b573c951619d95a726eadfd6a0a3e7f353aaace33b1913038170c5c37f49748d"
+    }
+  }
+}
